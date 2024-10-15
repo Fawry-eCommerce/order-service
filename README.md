@@ -30,3 +30,72 @@ The application provides the ability to search for orders based on:
 The application includes a **Customer Portal** where users can:
 - **View Products**: Display a list of available products for purchase.
 - **Checkout**: Once products are selected, the customer can proceed to checkout, triggering the order creation process as detailed above.
+
+## ERD
+
+```mermaid
+erDiagram
+  CUSTOMER {
+        NUMBER(4) ID PK
+        VARCHAR2(50) Name
+        VARCHAR2(30) Email
+        VARCHAR2(20) Phone_Number
+        varchar(16)  ACCONT_NUMBER
+    }
+       
+   ORDERS{
+       NUMBER(4) id PK
+       VARCHAR2(20) reference_number
+       NUMBER(15) amount
+       NUMBER(15) total_amount
+       NUMBER(10) discount_value
+       NUMBER(5)  discount_percentage
+       NUMBER(4)  customer_id FK
+       NUMBER(4)   merchant_id FK
+       Data   CREATED_DATE     
+   }
+
+    ORDER_ITEMS{
+        NUMBER(4) Id PK
+        NUMBER(4) order_id FK  
+        NUMBER(4) product_id FK 
+        VARCHAR2(10) quantity
+        NUMBER(4) total_price
+    }
+
+   PRODUCT {
+        NUMBER(5) Id PK
+        VARCHAR2(100) Name
+        VARCHAR2(8) sku
+        VARCHAR2(3) Code
+        VARCHAR2(30) price
+        NUMBER(8) merchant_id FK
+        NUMBER(8) category_id FK
+        VARCHAR2(1000) image_url
+        VARCHAR2(300)  description
+    }
+   
+    CATEGORY {
+        NUMBER(5) Id PK
+        VARCHAR2(50) Name
+        VARCHAR2(3) Code
+        CHAR(1) Is_Main
+    }
+     
+  
+    MERCHANT{
+        NUMBER(4) id PK
+        VARCHAR(50) name
+        VARCHAR(30) Email
+        VARCHAR(20) phone_number
+        varchar(16) ACCONT_NUMBER
+   }
+  
+   ORDERS ||--|{ ORDER_ITEMS : contains
+   CATEGORY ||--o{ PRODUCT : categorized_as
+   PRODUCT ||--o{ ORDER_ITEMS : includes
+   MERCHANT ||--o{ PRODUCT : owns
+   MERCHANT ||--o{ ORDERS : handles
+   CUSTOMER ||--o{ ORDERS : places
+
+```
