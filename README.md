@@ -35,29 +35,19 @@ The application includes a **Customer Portal** where users can:
 
 ```mermaid
 erDiagram
-    Product {
+
+  Orders {
         int id PK
-        string name
-        string sku
-        float price
-         string image_url
-        string description
-        int category_id FK
-    }
-    
-
-
- Orders {
-        int order_id PK
-        VARCHAR2(20) reference_number
+        string coupon_code
+        string customer_email
+        string reference_number
         float amount
-        NUMBER(10) discount_value
-        NUMBER(5)  discount_percentage
+        string coupon_type
+        float conpon_value
         float total_amount
-        int customer_id
+        string transaction_id
         datetime created_at
     }
-   
     
     Order_Items {
         int id PK
@@ -66,12 +56,5 @@ erDiagram
         int quantity
         float price
     }
-        Category {
-        int id PK
-        string name
-        string code
-    }
-
-     Category ||--o{ Product : "has"
-    Orders ||--o{ Order_Items : "contains"
-    Product ||--o{ Order_Items : "includes"
+        
+     Orders ||--o{ Order_Items : contains
