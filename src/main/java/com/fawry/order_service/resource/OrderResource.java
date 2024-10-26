@@ -1,6 +1,5 @@
 package com.fawry.order_service.resource;
 
-import com.fawry.order_service.entity.Orders;
 import com.fawry.order_service.model.OrderModel;
 import com.fawry.order_service.service.OrderService;
 import jakarta.validation.Valid;
