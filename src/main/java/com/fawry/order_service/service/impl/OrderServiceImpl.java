@@ -2,6 +2,7 @@ package com.fawry.order_service.service.impl;
 
 import com.fawry.order_service.entity.Orders;
 import com.fawry.order_service.exception.InvalidCouponException;
+import com.fawry.order_service.exception.OutOfStockException;
 import com.fawry.order_service.mapper.OrderMapper;
 import com.fawry.order_service.model.*;
 import com.fawry.order_service.repository.OrderRepository;
@@ -90,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Check stock response to validate availability
         if (stockResponse.stream().anyMatch(response -> !response.isAvailable())) {
-            throw new InvalidCouponException("One or more items are out of stock");
+            throw new OutOfStockException("One or more items are out of stock");
         }
     }
 
