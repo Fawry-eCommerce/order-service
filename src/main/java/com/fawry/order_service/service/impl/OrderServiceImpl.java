@@ -10,6 +10,7 @@ import com.fawry.order_service.service.OrderService;
 import com.fawry.order_service.service.client.BankClient;
 import com.fawry.order_service.service.client.CouponClient;
 import com.fawry.order_service.service.client.StoreClient;
+import com.fawry.order_service.service.message.NotificationProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,8 @@ public class OrderServiceImpl implements OrderService {
 
     public static final String PERCENTAGE = "PERCENTAGE";
     public static final String FIXED = "FIXED";
+
+
     @Autowired
     OrderRepository orderRepository;
     @Autowired
@@ -34,23 +37,44 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     BankClient bankClient;
 
+    @Autowired
+    private final NotificationProducer notificationProducer;
+
+    public OrderServiceImpl(NotificationProducer notificationProducer) {
+        this.notificationProducer = notificationProducer;
+    }
+
+
     @Override
     public void createOrder(OrderModel orderModel) {
-        //1-check availability and consume orderItems in stock
         consumeProductsInStock(orderModel);
 
         checkCouponAvailability(orderModel);
 
-        // Step 3: Generate reference number
         orderModel.setReferenceNumber(UUID.randomUUID().toString());
 
-        // Step 4: Process payment with bank
         String transactionId = bankClient.processPayment(new PaymentRequest(orderModel.getCustomerEmail(), orderModel.getTotalAmount()));
         orderModel.setTransactionId(transactionId);
 
-        // Step 5: Save the order
         Orders orders = orderMapper.mapModelToEntity(orderModel);
         orderRepository.save(orders);
+
+        OrderNotificationModel CustomerNotification = new OrderNotificationModel(
+                orderModel.getCustomerEmail(),
+                "Order Confirmation",
+                "Your order has been successfully placed with reference number: " + orderModel.getReferenceNumber()
+                + " And Amount" +  orderModel.getTotalAmount()
+        );
+
+        OrderNotificationModel merchantNotification = new OrderNotificationModel(
+                "khaledibrahimza@gmail.com",
+                "Order Confirmation",
+                "customer place order successfully with reference number: " + orderModel.getReferenceNumber()
+                        + " And Amount" +  orderModel.getTotalAmount()
+        );
+        notificationProducer.sendOrderNotification(CustomerNotification);
+        notificationProducer.sendOrderNotification(merchantNotification);
+
     }
 
     private void checkCouponAvailability(OrderModel orderModel) {
@@ -89,7 +113,6 @@ public class OrderServiceImpl implements OrderService {
                         .collect(Collectors.toList());
         List<ConsumeProductStockResponse> stockResponse = storeClient.consumeStock(stockRequests);
 
-        // Check stock response to validate availability
         if (stockResponse.stream().anyMatch(response -> !response.isAvailable())) {
             throw new OutOfStockException("One or more items are out of stock");
         }

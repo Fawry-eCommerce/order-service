@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentRequest {
     private String customerEmail;
-    private static String merchantAccount = "1236478623";
+    private static String merchantAccount = "123456789";
     private double price;
 }
